@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Level Map - Python Learning Adventure{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-4">
+            <h1 class="display-4">🗺️ Level Map</h1>
+            <p class="lead">Choose your next Python adventure!</p>
+        </div>
+
+        <!-- Level Map Container -->
+        <div class="level-map-container">
+            <div class="level-map">
+                {% for level in levels %}
+                {% if level.id % 10 == 0 %}
+                <!-- Test Level (every 10th level) -->
+                <div class="level-item test-level {% if not level.unlocked %}locked{% endif %}"
+                    data-level-id="{{ level.id }}" data-level-type="test">
+                    <div class="level-circle test-circle {% if level.completed %}completed{% endif %}">
+                        <div class="level-number">{{ level.id }}</div>
+                        <div class="level-icon">
+                            {% if level.completed %}
+                            <i class="fas fa-check-circle"></i>
+                            {% elif level.unlocked %}
+                            <i class="fas fa-clipboard-check"></i>
+                            {% else %}
+                            <i class="fas fa-lock"></i>
+                            {% endif %}
+                        </div>
+                        {% if level.completed %}
+                        <div class="level-stars">
+                            {% for i in range(level.stars) %}
+                            <i class="fas fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="level-info">
+                        <div class="level-title">{{ level.title }}</div>
+                        <div class="level-type">TEST LEVEL</div>
+                        <div class="level-reward">💰 {{ level.rewards.coins }} coins</div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Regular Level -->
+                <div class="level-item {% if not level.unlocked %}locked{% endif %}" data-level-id="{{ level.id }}"
+                    data-level-type="lesson">
+                    <div class="level-circle {% if level.completed %}completed{% endif %}">
+                        <div class="level-number">{{ level.id }}</div>
+                        <div class="level-icon">
+                            {% if level.completed %}
+                            <i class="fas fa-check-circle"></i>
+                            {% elif level.unlocked %}
+                            <i class="fas fa-play"></i>
+                            {% else %}
+                            <i class="fas fa-lock"></i>
+                            {% endif %}
+                        </div>
+                        {% if level.completed %}
+                        <div class="level-stars">
+                            {% for i in range(level.stars) %}
+                            <i class="fas fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="level-info">
+                        <div class="level-title">Level {{ level.id }}: {{ level.topic }}</div>
+                        <div class="level-difficulty difficulty-{{ level.difficulty.lower() }}">
+                            {{ level.difficulty }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Connection line between levels -->
+                {% if not loop.last %}
+                <div class="level-connection"></div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Progress Summary -->
+        <div class="row mt-5">
+            <div class="col-md-3 mb-4">
+                <div class="stats-card levels-card">
+                    <div class="stats-card-header">
+                        <div class="stats-icon-wrapper levels-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h5 class="stats-title">Levels Completed</h5>
+                    </div>
+                    <div class="stats-card-body">
+                        <div class="stats-number">{{ player.completed_levels|length }}<span
+                                class="stats-total">/100</span></div>
+                        <div class="stats-progress-wrapper">
+                            <div class="stats-progress-bar-container">
+                                <div class="stats-progress-bar-fill levels-progress"
+                                    style="width: {{ ((player.completed_levels|length / 100) * 100)|round }}%">
+                                </div>
+                            </div>
+                            <span class="stats-percentage">{{ ((player.completed_levels|length / 100) * 100)|round
+                                }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card stars-card">
+                    <div class="stats-card-header">
+                        <div class="stats-icon-wrapper stars-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h5 class="stats-title">Total Stars</h5>
+                    </div>
+                    <div class="stats-card-body">
+                        <div class="stats-number">{{ player.level_stars.values()|sum }}</div>
+                        <div class="stats-subtitle">Max: {{ player.completed_levels|length * 3 }}</div>
+                        <div class="stats-stars-display">
+                            {% for i in range(5) %}
+                            <i
+                                class="fas fa-star {% if i < (player.level_stars.values()|sum / 10) %}star-filled{% else %}star-empty{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card achievements-card">
+                    <div class="stats-card-header">
+                        <div class="stats-icon-wrapper achievements-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h5 class="stats-title">Achievements</h5>
+                    </div>
+                    <div class="stats-card-body">
+                        <div class="stats-number">{{ player.achievements|length }}</div>
+                        <div class="stats-subtitle">Keep learning!</div>
+                        <div class="achievement-badges">
+                            {% for i in range(3) %}
+                            <div
+                                class="achievement-badge {% if i < player.achievements|length %}badge-earned{% else %}badge-locked{% endif %}">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card streak-card">
+                    <div class="stats-card-header">
+                        <div class="stats-icon-wrapper streak-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h5 class="stats-title">Current Streak</h5>
+                    </div>
+                    <div class="stats-card-body">
+                        <div class="stats-number">{{ player.streak_count }}<span class="stats-unit">days</span></div>
+                        <div class="stats-subtitle">Keep it up!</div>
+                        <div class="streak-indicator">
+                            <div class="streak-flames">
+                                {% for i in range(7) %}
+                                <div class="flame {% if i < player.streak_count %}flame-active{% endif %}"></div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Level Modal -->
+<div class="modal fade" id="levelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="levelModalTitle">Level Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="levelModalBody">
+                <!-- Level details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="startLevelBtn">Start Level</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Handle level clicks
+        document.querySelectorAll('.level-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                const levelId = this.dataset.levelId;
+                const levelType = this.dataset.levelType;
+
+                if (this.classList.contains('locked')) {
+                    alert('This level is locked. Complete previous levels to unlock it!');
+                    return;
+                }
+
+                // Show level modal with details
+                showLevelModal(levelId, levelType);
+            });
+        });
+
+        function showLevelModal(levelId, levelType) {
+            const modal = new bootstrap.Modal(document.getElementById('levelModal'));
+            const titleElement = document.getElementById('levelModalTitle');
+            const bodyElement = document.getElementById('levelModalBody');
+            const startBtn = document.getElementById('startLevelBtn');
+
+            // Set modal title
+            titleElement.textContent = levelType === 'test' ? `Test Level ${levelId}` : `Level ${levelId}`;
+
+            // Set modal body with improved loading
+            bodyElement.innerHTML = `
+                <div class="text-center loading-container">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <p class="loading-text mt-3">Loading level details...</p>
+                </div>
+            `;
+
+            // Set start button
+            startBtn.onclick = function () {
+                const url = levelType === 'test' ? `/test/${levelId}` : `/level/${levelId}`;
+                window.location.href = url;
+            };
+
+            modal.show();
+
+            // Load level details
+            fetch(`/api/level_details/${levelId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bodyElement.innerHTML = `
+                        <div class="level-preview-container">
+                            <!-- Level Header -->
+                            <div class="level-preview-header">
+                                <div class="level-number-badge">
+                                    <span class="level-number">${levelId}</span>
+                                </div>
+                                <div class="level-header-info">
+                                    <h4 class="level-preview-title">Level ${levelId}: ${data.topic}</h4>
+                                    <div class="difficulty-badge difficulty-${data.difficulty.toLowerCase()}">
+                                        <i class="fas fa-signal me-1"></i>${data.difficulty}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Level Content -->
+                            <div class="level-preview-content">
+                                <!-- Description Card -->
+                                <div class="preview-card description-card">
+                                    <div class="preview-card-icon">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div class="preview-card-content">
+                                        <h6 class="preview-card-title">Description</h6>
+                                        <p class="preview-card-description">${data.description}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Rewards Section -->
+                                <div class="rewards-section">
+                                    <h6 class="rewards-title">
+                                        <i class="fas fa-gift me-2"></i>Level Rewards
+                                    </h6>
+                                    <div class="rewards-cards">
+                                        <div class="reward-card coins-reward">
+                                            <div class="reward-icon">
+                                                <i class="fas fa-coins"></i>
+                                            </div>
+                                            <div class="reward-info">
+                                                <span class="reward-amount">${data.rewards.coins}</span>
+                                                <span class="reward-type">Coins</span>
+                                            </div>
+                                        </div>
+                                        <div class="reward-card xp-reward">
+                                            <div class="reward-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="reward-info">
+                                                <span class="reward-amount">${data.rewards.xp}</span>
+                                                <span class="reward-type">XP</span>
+                                            </div>
+                                        </div>
+                                        <div class="reward-card stars-reward">
+                                            <div class="reward-icon">
+                                                <i class="fas fa-trophy"></i>
+                                            </div>
+                                            <div class="reward-info">
+                                                <span class="reward-amount">Up to ${data.rewards.stars}</span>
+                                                <span class="reward-type">Stars</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    } else {
+                        bodyElement.innerHTML = '<div class="alert alert-danger">Error loading level details</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    bodyElement.innerHTML = '<div class="alert alert-danger">Network error loading level details</div>';
+                });
+        }
+
+        function getDifficultyColor(difficulty) {
+            switch (difficulty.toLowerCase()) {
+                case 'beginner': return 'success';
+                case 'easy': return 'info';
+                case 'medium': return 'warning';
+                case 'hard': return 'orange';
+                case 'expert': return 'danger';
+                default: return 'secondary';
+            }
+        }
+    });
+</script>
+{% endblock %}

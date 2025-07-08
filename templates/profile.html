@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ player.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h1>{{ player.name }}</h1>
+            <p class="lead">Python Learning Adventure Profile</p>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <div class="stat-number">{{ player.current_level }}</div>
+                    <div class="stat-label">Current Level</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-number">{{ player.total_xp }}</div>
+                    <div class="stat-label">Total XP</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-number">{{ player.coins }}</div>
+                    <div class="stat-label">Coins</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-number">{{ player.streak }}</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.levels_completed }}</div>
+                    <div class="stat-label">Levels Completed</div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" role="progressbar" style="width: {{ stats.completion_percentage }}%">
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ "%.1f"|format(stats.completion_percentage) }}% complete</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_stars }}</div>
+                    <div class="stat-label">Total Stars</div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar bg-warning" role="progressbar"
+                            style="width: {{ stats.star_percentage }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ stats.max_stars }} possible</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.tests_completed }}</div>
+                    <div class="stat-label">Tests Completed</div>
+                    <div class="mt-2">
+                        <i class="fas fa-clipboard-check text-success"></i>
+                        <span class="text-muted">{{ stats.tests_completed }}/10 available</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.achievements_unlocked }}</div>
+                    <div class="stat-label">Achievements</div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar bg-success" role="progressbar"
+                            style="width: {{ (stats.achievements_unlocked / stats.total_achievements) * 100 }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ stats.total_achievements }} total</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-history text-primary"></i> Recent Activity
+                        </h5>
+                        <div class="activity-list">
+                            {% if player.completed_levels %}
+                            {% for level_id in player.completed_levels[-5:] %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    {% if level_id % 10 == 0 %}
+                                    <i class="fas fa-clipboard-check text-danger"></i>
+                                    {% else %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">
+                                        {% if level_id % 10 == 0 %}
+                                        Passed Test Level {{ level_id }}
+                                        {% else %}
+                                        Completed Level {{ level_id }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="activity-meta">
+                                        <span class="stars">
+                                            {% for i in range(player.level_stars.get(level_id|string, 0)) %}
+                                            <i class="fas fa-star text-warning"></i>
+                                            {% endfor %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="text-muted text-center py-3">
+                                <i class="fas fa-play-circle fa-3x mb-3"></i>
+                                <p>No activity yet. Start your first level!</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-trophy text-warning"></i> Latest Achievements
+                        </h5>
+                        <div class="achievement-list">
+                            {% if player.achievements %}
+                            {% for achievement_id in player.achievements[-5:] %}
+                            <div class="achievement-item">
+                                <div class="achievement-icon">
+                                    <i class="fas fa-trophy text-warning"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <div class="achievement-title">
+                                        {{ achievement_id.replace('_', ' ').title() }}
+                                    </div>
+                                    <div class="achievement-meta">
+                                        <small class="text-muted">Recently unlocked</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="text-muted text-center py-3">
+                                <i class="fas fa-trophy fa-3x mb-3"></i>
+                                <p>No achievements yet. Keep learning!</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Info -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-info-circle text-info"></i> Player Info
+                        </h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Player Level:</strong></td>
+                                <td>{{ player.player_level }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Game Level:</strong></td>
+                                <td>{{ player.current_level }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total XP:</strong></td>
+                                <td>{{ "{:,}".format(player.total_xp) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Coins:</strong></td>
+                                <td>{{ "{:,}".format(player.coins) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Streak:</strong></td>
+                                <td>{{ player.streak }} days</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line text-success"></i> Progress
+                        </h5>
+                        <div class="progress-item mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Levels</span>
+                                <span>{{ stats.levels_completed }}/100</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar"
+                                    style="width: {{ stats.completion_percentage }}%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Stars</span>
+                                <span>{{ stats.total_stars }}/{{ stats.max_stars }}</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" role="progressbar"
+                                    style="width: {{ stats.star_percentage }}%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="d-flex justify-content-between">
+                                <span>Achievements</span>
+                                <span>{{ stats.achievements_unlocked }}/{{ stats.total_achievements }}</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                    style="width: {{ (stats.achievements_unlocked / stats.total_achievements) * 100 }}%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-gift text-danger"></i> Rewards
+                        </h5>
+                        <div class="rewards-summary">
+                            <div class="reward-item">
+                                <i class="fas fa-shopping-cart text-primary"></i>
+                                <span>{{ stats.rewards_purchased }}/{{ stats.total_rewards }} rewards owned</span>
+                            </div>
+                            <div class="reward-item mt-2">
+                                <i class="fas fa-coins text-success"></i>
+                                <span>{{ "{:,}".format(player.coins) }} coins available</span>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ url_for('rewards') }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-store"></i> Visit Rewards Shop
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .activity-item,
+    .achievement-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .activity-item:last-child,
+    .achievement-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon,
+    .achievement-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        margin-right: 1rem;
+    }
+
+    .activity-content,
+    .achievement-content {
+        flex: 1;
+    }
+
+    .activity-title,
+    .achievement-title {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-meta,
+    .achievement-meta {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .progress-item {
+        margin-bottom: 1rem;
+    }
+
+    .progress-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .reward-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}

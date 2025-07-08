@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Python Learning Game{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-page">
+                <h1 class="display-1 text-danger">500</h1>
+                <h2 class="mb-4">Internal Server Error</h2>
+                <p class="lead mb-4">
+                    Something went wrong on our end. We're working to fix it!
+                </p>
+
+                <div class="error-illustration mb-4">
+                    <i class="fas fa-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+                </div>
+
+                <div class="error-actions">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-home"></i> Go Home
+                    </a>
+                    <a href="javascript:location.reload()" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-redo"></i> Try Again
+                    </a>
+                </div>
+
+                <div class="mt-5">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Learning Tip:</strong> In Python, you can use <code>logging</code> module to track
+                        errors and debug your applications!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-page {
+        padding: 2rem 0;
+    }
+
+    .error-illustration {
+        animation: shake 1s ease-in-out infinite;
+    }
+
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-5px);
+        }
+
+        75% {
+            transform: translateX(5px);
+        }
+    }
+
+    .display-1 {
+        font-size: 8rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %} - Python Learning Adventure</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        :root {
+            --admin-primary: #2D3748;
+            --admin-secondary: #4A5568;
+            --admin-accent: #3182CE;
+            --admin-success: #38A169;
+            --admin-warning: #D69E2E;
+            --admin-danger: #E53E3E;
+            --admin-bg: #F7FAFC;
+            --admin-card-bg: #FFFFFF;
+            --admin-border: #E2E8F0;
+        }
+
+        body {
+            background-color: var(--admin-bg);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .admin-sidebar {
+            background: var(--admin-primary);
+            min-height: 100vh;
+            padding: 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-sidebar .nav-link {
+            color: #E2E8F0;
+            padding: 12px 20px;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background: var(--admin-accent);
+            color: white;
+        }
+
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .admin-header {
+            background: white;
+            border-bottom: 1px solid var(--admin-border);
+            padding: 15px 30px;
+            margin-bottom: 30px;
+        }
+
+        .admin-card {
+            background: var(--admin-card-bg);
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--admin-accent);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--admin-accent);
+        }
+
+        .btn-admin-primary {
+            background-color: var(--admin-accent);
+            border-color: var(--admin-accent);
+            color: white;
+        }
+
+        .btn-admin-primary:hover {
+            background-color: #2C5AA0;
+            border-color: #2C5AA0;
+        }
+
+        .table-admin {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-admin-active {
+            background-color: var(--admin-success);
+        }
+
+        .badge-admin-inactive {
+            background-color: var(--admin-danger);
+        }
+
+        .badge-admin-admin {
+            background-color: var(--admin-warning);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <div class="p-3">
+                    <h5 class="text-white mb-4">
+                        <i class="fas fa-cog me-2"></i>Admin Panel
+                    </h5>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
+                        href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i>Dashboard
+                    </a>
+                    <a class="nav-link {% if request.endpoint in ['admin.manage_users', 'admin.view_user', 'admin.edit_user'] %}active{% endif %}"
+                        href="{{ url_for('admin.manage_users') }}">
+                        <i class="fas fa-users"></i>Manage Users
+                    </a>
+                    <a class="nav-link {% if request.endpoint == 'admin.manage_scores' %}active{% endif %}"
+                        href="{{ url_for('admin.manage_scores') }}">
+                        <i class="fas fa-trophy"></i>Scores & Rankings
+                    </a>
+                    <a class="nav-link {% if request.endpoint in ['admin.manage_content', 'admin.manage_level_content', 'admin.add_question'] %}active{% endif %}"
+                        href="{{ url_for('admin.manage_content') }}">
+                        <i class="fas fa-book"></i>Content Management
+                    </a>
+                    <a class="nav-link {% if request.endpoint == 'admin.system_info' %}active{% endif %}"
+                        href="{{ url_for('admin.system_info') }}">
+                        <i class="fas fa-server"></i>System Info
+                    </a>
+                    <hr class="text-secondary">
+                    <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                        <i class="fas fa-arrow-left"></i>Back to Game
+                    </a>
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                        <i class="fas fa-sign-out-alt"></i>Logout
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Header -->
+                <div class="admin-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{% block page_title %}Admin Dashboard{% endblock %}</h4>
+                        <div class="d-flex align-items-center">
+                            <span class="me-3">Welcome, {{ current_user.full_name }}</span>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}">
+                                            <i class="fas fa-gamepad me-2"></i>Game Dashboard
+                                        </a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                        </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flash Messages -->
+                <div class="px-4">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+                        role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                <!-- Page Content -->
+                <div class="px-4 pb-4">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script>
+        // Admin panel utilities
+        function toggleUserStatus(userId) {
+            fetch(`/admin/api/users/${userId}/toggle-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                });
+        }
+
+        function toggleAdminStatus(userId) {
+            fetch(`/admin/api/users/${userId}/toggle-admin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                });
+        }
+
+        function confirmDelete(message) {
+            return confirm(message || 'Are you sure you want to delete this item?');
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

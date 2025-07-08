@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Python Learning Adventure{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="profile-header mb-4">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-8">
+                        <div class="d-flex align-items-center">
+                            <div class="profile-avatar me-3">
+                                <i class="fas fa-user-circle fa-4x text-primary"></i>
+                            </div>
+                            <div>
+                                <h2 class="mb-1">{{ user.full_name }}</h2>
+                                <p class="text-muted mb-0">@{{ user.username }}</p>
+                                <small class="text-muted">Member since {{ user.created_at.strftime('%B %Y') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 text-md-end mt-3 mt-md-0">
+                        <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-key"></i> Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+                role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Profile Stats -->
+            <div class="row mb-4">
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                    <div class="card stat-card text-center">
+                        <div class="card-body">
+                            <div class="stat-icon mb-2">
+                                <i class="fas fa-trophy fa-2x text-warning"></i>
+                            </div>
+                            <h4 class="card-title">{{ user.current_level }}</h4>
+                            <p class="card-text text-muted">Current Level</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                    <div class="card stat-card text-center">
+                        <div class="card-body">
+                            <div class="stat-icon mb-2">
+                                <i class="fas fa-star fa-2x text-success"></i>
+                            </div>
+                            <h4 class="card-title">{{ user.total_score }}</h4>
+                            <p class="card-text text-muted">Total Score</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                    <div class="card stat-card text-center">
+                        <div class="card-body">
+                            <div class="stat-icon mb-2">
+                                <i class="fas fa-fire fa-2x text-danger"></i>
+                            </div>
+                            <h4 class="card-title">{{ user.streak_count }}</h4>
+                            <p class="card-text text-muted">Day Streak</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                    <div class="card stat-card text-center">
+                        <div class="card-body">
+                            <div class="stat-icon mb-2">
+                                <i class="fas fa-check-circle fa-2x text-info"></i>
+                            </div>
+                            <h4 class="card-title">{{ user.completed_levels|length if user.completed_levels else 0 }}
+                            </h4>
+                            <p class="card-text text-muted">Completed Levels</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Information -->
+            <div class="row">
+                <div class="col-12 col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-user me-2"></i>Profile Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0 text-muted">Full Name</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="mb-2">{{ user.full_name }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0 text-muted">Username</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="mb-2">{{ user.username }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0 text-muted">Email</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="mb-2">
+                                        {{ user.email }}
+                                        {% if user.email_verified %}
+                                        <span class="badge bg-success ms-2">Verified</span>
+                                        {% else %}
+                                        <span class="badge bg-warning ms-2">Unverified</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0 text-muted">Member Since</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="mb-2">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0 text-muted">Last Login</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="mb-0">
+                                        {% if user.last_login %}
+                                        {{ user.last_login.strftime('%B %d, %Y at %I:%M %p') }}
+                                        {% else %}
+                                        Never
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="col-12 col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-medal me-2"></i>Achievements
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% set achievements = user.achievements|from_json if user.achievements else [] %}
+                            {% if achievements %}
+                            {% for achievement in achievements %}
+                            <div class="achievement-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="achievement-icon me-3">
+                                        <i class="fas fa-trophy text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ achievement.name }}</h6>
+                                        <small class="text-muted">{{ achievement.description }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="text-center text-muted">
+                                <i class="fas fa-medal fa-3x mb-3 opacity-50"></i>
+                                <p>No achievements yet</p>
+                                <small>Complete levels to earn achievements!</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-history me-2"></i>Learning Progress
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% set completed_levels = user.completed_levels|from_json if user.completed_levels else []
+                            %}
+                            {% if completed_levels %}
+                            <div class="progress-overview mb-4">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="progress-stat">
+                                            <h4 class="text-success">{{ completed_levels|length }}</h4>
+                                            <small class="text-muted">Levels Completed</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="progress-stat">
+                                            <h4 class="text-info">{{ ((completed_levels|length / 100) * 100)|round|int
+                                                }}%</h4>
+                                            <small class="text-muted">Course Progress</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="progress-stat">
+                                            <h4 class="text-warning">{{ user.current_level }}</h4>
+                                            <small class="text-muted">Next Level</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="progress mb-3" style="height: 10px;">
+                                <div class="progress-bar bg-success"
+                                    style="width: {{ (completed_levels|length / 100) * 100 }}%"></div>
+                            </div>
+
+                            <div class="levels-grid">
+                                {% for level in completed_levels[:10] %}
+                                <span class="badge bg-success me-1 mb-1">Level {{ level }}</span>
+                                {% endfor %}
+                                {% if completed_levels|length > 10 %}
+                                <span class="badge bg-secondary">+{{ completed_levels|length - 10 }} more</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted">
+                                <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i>
+                                <p>No progress yet</p>
+                                <small>Start learning to see your progress here!</small>
+                                <div class="mt-3">
+                                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                        Start Learning
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-top: 2rem;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-card {
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        opacity: 0.8;
+    }
+
+    .achievement-item {
+        padding: 10px;
+        border-radius: 8px;
+        background: #f8f9fa;
+    }
+
+    .achievement-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-stat h4 {
+        margin-bottom: 5px;
+        font-weight: 700;
+    }
+
+    .levels-grid .badge {
+        font-size: 0.8rem;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            margin-top: 1rem;
+            padding: 1.5rem;
+        }
+
+        .profile-header .row>div:last-child {
+            text-align: center !important;
+        }
+
+        .profile-header .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}

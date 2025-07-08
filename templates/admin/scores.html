@@ -1,0 +1,181 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Scores & Rankings{% endblock %}
+{% block page_title %}Scores & Rankings Management{% endblock %}
+
+{% block content %}
+<!-- Leaderboard -->
+<div class="row">
+    <div class="col-12">
+        <div class="admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Global Leaderboard</h5>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-redo"></i> Reset All Scores
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info">
+                        <i class="fas fa-download"></i> Export Scores
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Current Level</th>
+                            <th>Total Score</th>
+                            <th>Streak</th>
+                            <th>Last Activity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in top_scores %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if loop.index == 1 %}
+                                    <i class="fas fa-crown text-warning me-2"></i>
+                                    <span class="fw-bold">#{{ loop.index }}</span>
+                                    {% elif loop.index <= 3 %} <i class="fas fa-medal text-info me-2"></i>
+                                        <span class="fw-bold">#{{ loop.index }}</span>
+                                        {% else %}
+                                        <span class="fw-medium">#{{ loop.index }}</span>
+                                        {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        {{ user.username[0].upper() }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-medium">{{ user.full_name }}</div>
+                                        <small class="text-muted">@{{ user.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">Level {{ user.current_level }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-success fs-5">{{ user.total_score }}</span>
+                            </td>
+                            <td>
+                                {% if user.streak_count > 0 %}
+                                <span class="badge bg-warning">{{ user.streak_count }} days</span>
+                                {% else %}
+                                <span class="badge bg-secondary">No streak</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.last_activity %}
+                                <small>{{ user.last_activity.strftime('%b %d, %Y') }}</small>
+                                {% else %}
+                                <small class="text-muted">Never</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('admin.view_user', user_id=user.id) }}"
+                                        class="btn btn-outline-info" title="View User">
+                                        <i class="fas fa-user"></i>
+                                    </a>
+                                    <form action="{{ url_for('admin.reset_user_progress', user_id=user.id) }}"
+                                        method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-outline-warning" title="Reset Progress"
+                                            onclick="return confirmDelete('Reset all progress for {{ user.username }}?')">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Level Completion Statistics -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5 class="mb-0">Level Completion Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for level, count in level_stats.items() %}
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="text-center p-3 border rounded">
+                            <div class="h4 text-primary">{{ count }}</div>
+                            <div class="text-muted">Level {{ level }}</div>
+                            <div class="progress mt-2" style="height: 5px;">
+                                {% set completion_percentage = (count / top_scores|length * 100) if top_scores else 0 %}
+                                <div class="progress-bar bg-primary" style="width: {{ completion_percentage }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Score Analytics -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5 class="mb-0">Score Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center p-4">
+                    <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Score distribution chart would be displayed here</p>
+                    <button class="btn btn-outline-primary">Generate Chart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5 class="mb-0">Progress Trends</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center p-4">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Progress trends chart would be displayed here</p>
+                    <button class="btn btn-outline-success">View Trends</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+    }
+</style>
+{% endblock %}

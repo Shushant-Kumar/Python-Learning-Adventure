@@ -1,0 +1,694 @@
+{% extends "base.html" %}
+
+{% block title %}{{ level.title }} - Python Learning Adventure{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Level Header -->
+        <div class="level-header mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-play-circle text-primary"></i> {{ level.title }}</h1>
+                    <p class="lead">
+                        <span
+                            class="badge bg-{{ 'success' if level.difficulty == 'Beginner' else 'warning' if level.difficulty == 'Easy' else 'info' if level.difficulty == 'Medium' else 'orange' if level.difficulty == 'Hard' else 'danger' }}">
+                            {{ level.difficulty }}
+                        </span>
+                        <span class="text-muted">• {{ level.topic }}</span>
+                    </p>
+                </div>
+                <div class="text-end">
+                    <div class="level-rewards">
+                        <div><i class="fas fa-coins text-success"></i> {{ level.rewards.coins }} coins</div>
+                        <div><i class="fas fa-star text-warning"></i> {{ level.rewards.xp }} XP</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson Content -->
+        <div class="lesson-content">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4><i class="fas fa-book text-primary"></i> Lesson Content</h4>
+                    <div class="lesson-text">
+                        {{ level.content|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Example -->
+            {% if level.code_example %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4><i class="fas fa-code text-success"></i> Code Example</h4>
+                    <pre class="code-example"><code class="language-python">{{ level.code_example }}</code></pre>
+                    <button class="btn btn-outline-primary btn-sm" onclick="copyCode()">
+                        <i class="fas fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quiz Section -->
+            <div class="card">
+                <div class="card-body">
+                    <h4><i class="fas fa-question-circle text-warning"></i> Knowledge Check</h4>
+                    <p>Test your understanding with these questions:</p>
+
+                    <form id="quizForm">
+                        {% for question in level.quiz %}
+                        {% set question_index = loop.index0 %}
+                        <div class="question-container mb-4" data-question="{{ question_index }}">
+                            <h5>Question {{ loop.index }}</h5>
+                            <p>{{ question.question }}</p>
+
+                            {% if question.type == 'multiple_choice' %}
+                            {% for option in question.options %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="question_{{ question_index }}"
+                                    value="{{ loop.index0 }}" id="q{{ question_index }}_{{ loop.index0 }}">
+                                <label class="form-check-label" for="q{{ question_index }}_{{ loop.index0 }}">
+                                    {{ option }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {% elif question.type == 'code' %}
+                            <textarea class="form-control code-input" name="question_{{ question_index }}" rows="5"
+                                placeholder="{{ question.placeholder or 'Write your code here...' }}"></textarea>
+                            {% else %}
+                            <input type="text" class="form-control" name="question_{{ question_index }}"
+                                placeholder="Your answer...">
+                            {% endif %}
+
+                            <div class="question-feedback mt-2" style="display: none;"></div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Submit Answers
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Modal -->
+<div class="modal fade" id="resultsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🎉 Level Complete!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="resultsBody">
+                <!-- Results will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="goToLevelMap()">
+                    <i class="fas fa-map"></i> Level Map
+                </button>
+                <button type="button" class="btn btn-success" id="nextLevelBtn">
+                    <i class="fas fa-arrow-right"></i> Next Level
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    /* Dark Theme Level Page Styles */
+
+    /* Dark Color Palette */
+    :root {
+        --primary-blue: #3b82f6;
+        --primary-blue-hover: #2563eb;
+        --complementary-orange: #f59e0b;
+        --background-dark: #111827;
+        --background-card: #1f2937;
+        --background-lighter: #374151;
+        --text-white: #ffffff;
+        --text-gray-light: #d1d5db;
+        --text-gray: #9ca3af;
+        --border-dark: #374151;
+        --success-green: #10b981;
+        --warning-amber: #f4f0ea;
+        --danger-red: #ef4444;
+    }
+
+    /* Body Background Override */
+    body {
+        background-color: var(--background-dark) !important;
+        color: var(--text-white) !important;
+    }
+
+    /* Level Header */
+    .level-header {
+        background: linear-gradient(135deg, var(--primary-blue), var(--complementary-orange));
+        color: var(--text-white);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .level-header h1 {
+        color: var(--text-white);
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .level-header .lead {
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+
+    .level-header .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    .level-rewards div {
+        color: var(--text-white);
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    /* Cards - Dark Theme */
+    .card {
+        background: var(--background-card) !important;
+        border: 1px solid var(--border-dark) !important;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .card h4 {
+        color: var(--text-white);
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    /* Lesson Content */
+    .lesson-text {
+        background: var(--background-lighter);
+        color: var(--text-white);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-blue);
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    /* Code Example Styling - Same as Lesson Content */
+    .code-example {
+        background: var(--background-lighter) !important;
+        color: var(--text-white) !important;
+        border-left: 4px solid var(--primary-blue) !important;
+        border: none !important;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 1rem;
+        line-height: 1.7;
+        overflow-x: auto;
+        margin: 1rem 0;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .code-example:hover {
+        /* Matches lesson content - no special hover effects */
+        background: var(--background-lighter) !important;
+    }
+
+    .code-example::before {
+        content: "Python Code";
+        position: absolute;
+        top: -2px;
+        right: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .code-example code {
+        background: transparent !important;
+        color: var(--text-white) !important;
+        font-weight: 100;
+    }
+
+    /* Uniform white text colors - no syntax highlighting */
+    .code-example .token.keyword,
+    .code-example .token.string,
+    .code-example .token.function,
+    .code-example .token.number,
+    .code-example .token.operator,
+    .code-example .token.punctuation,
+    .code-example .token.comment,
+    .code-example .token.builtin,
+    .code-example .token.constant,
+    .code-example .token.variable,
+    .code-example .token.boolean,
+    .code-example .token.class-name,
+    .code-example .token {
+        color: var(--text-white) !important;
+        background: transparent !important;
+        font-weight: inherit !important;
+    }
+
+    /* Special styling for comments to be slightly lighter */
+    .code-example .token.comment {
+        color: #e2e8f0 !important;
+        font-style: italic;
+    }
+
+    /* Question Containers */
+    .question-container {
+        background: var(--background-lighter);
+        border: 1px solid var(--border-dark);
+        border-left: 4px solid var(--complementary-orange);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .question-container h5 {
+        color: var(--text-white);
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .question-container p {
+        color: var(--text-gray-light);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+
+    /* Form Elements - Dark Theme */
+    .form-check {
+        background: var(--background-card);
+        border: 1px solid var(--border-dark);
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: background-color 0.2s ease;
+    }
+
+    .form-check:hover {
+        background: var(--background-lighter);
+    }
+
+    .form-check-label {
+        color: var(--text-white);
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .form-check-input {
+        background-color: var(--background-lighter);
+        border: 2px solid var(--border-dark);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
+    }
+
+    .form-control,
+    .code-input {
+        background: var(--background-card) !important;
+        color: var(--text-white) !important;
+        border: 2px solid var(--border-dark) !important;
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus,
+    .code-input:focus {
+        background: var(--background-card) !important;
+        color: var(--text-white) !important;
+        border-color: var(--primary-blue) !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        outline: none;
+    }
+
+    .code-input {
+        font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+        background: var(--background-lighter) !important;
+    }
+
+    /* Buttons - Dark Theme */
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-green), #059669);
+        border: none;
+        color: var(--text-white);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: var(--text-white);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-outline-primary {
+        background: var(--background-lighter);
+        color: var(--text-white);
+        border: 1px solid var(--border-dark);
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--primary-blue);
+        color: var(--text-white);
+        border-color: var(--primary-blue);
+    }
+
+    /* Modal - Dark Theme */
+    .modal-content {
+        background: var(--background-card) !important;
+        border: 1px solid var(--border-dark);
+        border-radius: 12px;
+        color: var(--text-white);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--success-green), var(--primary-blue));
+        color: var(--text-white);
+        border-radius: 12px 12px 0 0;
+        border-bottom: 1px solid var(--border-dark);
+    }
+
+    .modal-body {
+        padding: 2rem;
+        color: var(--text-white);
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--border-dark);
+        background: var(--background-card);
+    }
+
+    /* Text Color Overrides */
+    .text-muted {
+        color: var(--text-gray) !important;
+    }
+
+    /* Bootstrap Icon Color Overrides */
+    .text-primary {
+        color: var(--primary-blue) !important;
+    }
+
+    .text-success {
+        color: var(--success-green) !important;
+    }
+
+    .text-warning {
+        color: var(--warning-amber) !important;
+    }
+
+    /* Responsive Design - Enhanced for Dark Theme */
+    @media (max-width: 768px) {
+        .level-header {
+            padding: 1.5rem;
+        }
+
+        .level-header h1 {
+            font-size: 1.6rem;
+        }
+
+        .level-header .d-flex {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .question-container {
+            padding: 1rem;
+        }
+
+        .code-example {
+            padding: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-lg {
+            padding: 0.7rem 1.3rem;
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .level-header {
+            padding: 1rem;
+        }
+
+        .level-header h1 {
+            font-size: 1.4rem;
+        }
+
+        .code-example {
+            font-size: 0.8rem;
+            padding: 0.8rem;
+        }
+
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+    }
+
+    /* Accessibility - High Contrast for Dark Theme */
+    @media (prefers-contrast: high) {
+        .card {
+            border: 2px solid var(--text-white) !important;
+        }
+
+        .form-check {
+            border: 2px solid var(--text-gray) !important;
+        }
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize code highlighting
+        Prism.highlightAll();
+
+        // Handle quiz submission
+        document.getElementById('quizForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const answers = [];
+
+            // Collect answers
+            const questionContainers = document.querySelectorAll('.question-container');
+            questionContainers.forEach(function (container, index) {
+                const questionIndex = container.dataset.question;
+                const radioInputs = container.querySelectorAll('input[type="radio"]');
+                const textInput = container.querySelector('input[type="text"], textarea');
+
+                if (radioInputs.length > 0) {
+                    // Multiple choice
+                    const checkedInput = container.querySelector('input[type="radio"]:checked');
+                    answers[index] = checkedInput ? parseInt(checkedInput.value) : -1;
+                } else if (textInput) {
+                    // Text or code input
+                    answers[index] = textInput.value.trim();
+                }
+            });
+
+            // Submit answers
+            submitQuiz(answers);
+        });
+    });
+
+    function submitQuiz(answers) {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Answers...';
+        submitBtn.disabled = true;
+
+        fetch('/api/complete_level', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                level_id: {{ level.id }},
+                quiz_answers: answers
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showResults(data);
+            } else {
+                alert('Error: ' + (data.error || 'Failed to submit quiz'));
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+}
+
+    function showResults(data) {
+        const modal = new bootstrap.Modal(document.getElementById('resultsModal'));
+        const resultsBody = document.getElementById('resultsBody');
+        const nextLevelBtn = document.getElementById('nextLevelBtn');
+
+        // Generate stars display
+        let starsHtml = '';
+        for (let i = 0; i < 3; i++) {
+            if (i < data.stars) {
+                starsHtml += '<i class="fas fa-star text-warning fs-2"></i>';
+            } else {
+                starsHtml += '<i class="far fa-star text-muted fs-2"></i>';
+            }
+        }
+
+        // Achievement notifications
+        let achievementsHtml = '';
+        if (data.new_achievements && data.new_achievements.length > 0) {
+            achievementsHtml = `
+            <div class="alert alert-success">
+                <h6><i class="fas fa-trophy"></i> New Achievement${data.new_achievements.length > 1 ? 's' : ''} Unlocked!</h6>
+                ${data.new_achievements.map(ach => `<div>🏆 ${ach.name}</div>`).join('')}
+            </div>
+        `;
+        }
+
+        // Level up notification
+        let levelUpHtml = '';
+        if (data.leveled_up) {
+            levelUpHtml = `
+            <div class="alert alert-info">
+                <h6><i class="fas fa-level-up-alt"></i> Level Up!</h6>
+                <p>Congratulations! You've reached player level ${data.new_player_level || 'up'}!</p>
+            </div>
+        `;
+        }
+
+        resultsBody.innerHTML = `
+        <div class="text-center">
+            <div class="mb-3">${starsHtml}</div>
+            <h4>Score: ${data.correct_answers}/${data.total_questions} (${Math.round(data.score)}%)</h4>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <h5><i class="fas fa-coins text-success"></i> Coins Earned</h5>
+                        <h3 class="text-success">+${data.coins_earned}</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <h5><i class="fas fa-star text-warning"></i> XP Earned</h5>
+                        <h3 class="text-warning">+${data.xp_earned}</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <h5><i class="fas fa-trophy text-primary"></i> Stars</h5>
+                        <h3 class="text-primary">${data.stars}/3</h3>
+                    </div>
+                </div>
+            </div>
+            ${achievementsHtml}
+            ${levelUpHtml}
+        </div>
+    `;
+
+        // Set up next level button
+        const currentLevel = { level.id }
+    };
+    const nextLevel = currentLevel + 1;
+
+    if (nextLevel <= 100) {
+        nextLevelBtn.onclick = function () {
+            if (nextLevel % 10 === 0) {
+                window.location.href = `/test/${nextLevel}`;
+            } else {
+                window.location.href = `/level/${nextLevel}`;
+            }
+        };
+        nextLevelBtn.style.display = 'block';
+    } else {
+        nextLevelBtn.style.display = 'none';
+    }
+
+    modal.show();
+}
+
+    function copyCode() {
+        const codeElement = document.querySelector('.code-example code');
+        const text = codeElement.textContent;
+
+        navigator.clipboard.writeText(text).then(function () {
+            // Show success feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.classList.replace('btn-outline-primary', 'btn-success');
+
+            setTimeout(function () {
+                btn.innerHTML = originalText;
+                btn.classList.replace('btn-success', 'btn-outline-primary');
+            }, 2000);
+        });
+    }
+
+    function goToLevelMap() {
+        window.location.href = '/';
+    }
+</script>
+{% endblock %}

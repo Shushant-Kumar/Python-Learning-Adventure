@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Learning Adventure - Navigate the loops, master the logic, conquer the code!</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Color Scheme */
+            --bg-primary: #1E1E2F;
+            --primary-accent: #4FC3F7;
+            --secondary-accent: #81C784;
+            --highlight-cta: #FFEB3B;
+            --danger-error: #EF5350;
+            --text-main: #FFFFFF;
+            --text-muted: #B0BEC5;
+
+            /* Additional colors for gradients */
+            --bg-secondary: #252540;
+            --accent-hover: #29B6F6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        /* Inverted Pyramid Layout - Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 100px 0;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, var(--primary-accent) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, var(--secondary-accent) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, var(--highlight-cta) 0%, transparent 50%);
+            opacity: 0.1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-description {
+            font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            line-height: 1.8;
+        }
+
+        .hero-cta {
+            margin-top: 2rem;
+        }
+
+        .primary-cta {
+            font-size: 1.3rem;
+            padding: 18px 40px;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .cta-subtitle {
+            margin-top: 1rem;
+        }
+
+        .cta-features {
+            font-size: 0.95rem;
+            color: var(--secondary-accent);
+            display: inline-block;
+            background: rgba(129, 199, 132, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(129, 199, 132, 0.3);
+        }
+
+        /* Auth Buttons - Top Right */
+        .auth-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Section Spacing */
+        .preview-section,
+        .benefits-section,
+        .features-section,
+        .final-cta-section {
+            padding: 80px 0;
+        }
+
+        .preview-section {
+            background: rgba(79, 195, 247, 0.05);
+        }
+
+        .benefits-section {
+            background: linear-gradient(135deg, rgba(129, 199, 132, 0.1), rgba(79, 195, 247, 0.1));
+        }
+
+        .final-cta-section {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            position: relative;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        /* Preview Features List */
+        .preview-features {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+        }
+
+        .preview-features li {
+            padding: 0.5rem 0;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .preview-features i {
+            color: var(--secondary-accent);
+        }
+
+        /* Benefit Cards */
+        .benefit-card {
+            background: rgba(79, 195, 247, 0.1);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .benefit-card.primary::before {
+            background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
+        }
+
+        .benefit-card.secondary::before {
+            background: linear-gradient(90deg, var(--secondary-accent), var(--highlight-cta));
+        }
+
+        .benefit-card.accent::before {
+            background: linear-gradient(90deg, var(--highlight-cta), var(--primary-accent));
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(79, 195, 247, 0.3);
+            border-color: rgba(79, 195, 247, 0.4);
+        }
+
+        .benefit-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(79, 195, 247, 0.3);
+        }
+
+        .benefit-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .benefit-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .game-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            color: var(--text-main);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary-accent), var(--highlight-cta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--primary-accent);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .description {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .play-now-btn {
+            background: linear-gradient(45deg, var(--highlight-cta), #FDD835);
+            border: none;
+            color: var(--bg-primary);
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-weight: 600;
+            padding: 18px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 8px 25px rgba(255, 235, 59, 0.3);
+            will-change: transform;
+        }
+
+        .play-now-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 35px rgba(255, 235, 59, 0.5);
+            color: var(--bg-primary);
+            text-decoration: none;
+        }
+
+        /* Simplified animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 30px, 0);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .animate-fadeInUp {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        /* Game Preview - Simplified */
+        .game-preview {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 10px;
+            padding: 25px;
+            background: rgba(79, 195, 247, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .level-node {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            will-change: transform;
+        }
+
+        .level-completed {
+            background: linear-gradient(45deg, var(--secondary-accent), #4CAF50);
+            box-shadow: 0 4px 15px rgba(129, 199, 132, 0.3);
+        }
+
+        .level-current {
+            background: linear-gradient(45deg, var(--primary-accent), var(--accent-hover));
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.4);
+            animation: pulse 1.5s infinite;
+        }
+
+        .level-locked {
+            background: rgba(176, 190, 197, 0.3);
+            color: var(--text-muted);
+        }
+
+        .level-node:hover:not(.level-locked) {
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 4px 15px rgba(79, 195, 247, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 4px 25px rgba(79, 195, 247, 0.7);
+            }
+        }
+
+        /* Features Section - Optimized */
+        .features-section {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-main);
+        }
+
+        .feature-card {
+            background: rgba(79, 195, 247, 0.1);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            height: 100%;
+            transition: transform 0.2s ease;
+            will-change: transform;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            background: rgba(79, 195, 247, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary-accent);
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .feature-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Auth Buttons - Responsive */
+        .auth-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-btn {
+            background: rgba(79, 195, 247, 0.2);
+            color: var(--text-main);
+            border: 2px solid rgba(79, 195, 247, 0.3);
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+            will-change: transform;
+        }
+
+        .auth-btn:hover {
+            background: rgba(79, 195, 247, 0.3);
+            color: var(--text-main);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .auth-btn.signup {
+            background: linear-gradient(45deg, var(--highlight-cta), #FDD835);
+            border-color: transparent;
+            color: var(--bg-primary);
+        }
+
+        .auth-btn.signup:hover {
+            color: var(--bg-primary);
+        }
+
+        /* CTA Section Styling */
+        .cta-title {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .cta-buttons {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .auth-link-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .auth-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .auth-link {
+            color: var(--primary-accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            background: rgba(79, 195, 247, 0.1);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .auth-link:hover {
+            color: var(--text-main);
+            background: rgba(79, 195, 247, 0.2);
+            border-color: rgba(79, 195, 247, 0.5);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        @media (min-width: 576px) {
+            .auth-link-wrapper {
+                flex-direction: row;
+                gap: 16px;
+                align-items: center;
+            }
+
+            .cta-buttons {
+                gap: 24px;
+            }
+        }
+
+        /* Performance optimizations */
+        .hero-section,
+        .features-section {
+            contain: layout;
+        }
+
+        /* Code Animation - Restored */
+        .code-animation {
+            background: rgba(30, 30, 47, 0.9);
+            color: var(--secondary-accent);
+            border-radius: 15px;
+            padding: 25px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .code-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent), var(--highlight-cta));
+        }
+
+        #typing-code {
+            min-height: 100px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .typing-cursor {
+            animation: blink 1s infinite;
+            color: var(--highlight-cta);
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .level-node,
+        .feature-card,
+        .auth-btn,
+        .play-now-btn {
+            contain: layout style;
+        }
+
+        /* Footer Styles - Override */
+        .site-footer {
+            background: #000000 !important;
+            border-top: 1px solid rgba(79, 195, 247, 0.2);
+            padding: 60px 0 20px;
+            margin-top: 0;
+        }
+
+        .footer-content {
+            margin-bottom: 40px;
+        }
+
+        .footer-section {
+            height: 100%;
+        }
+
+        .footer-logo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-logo i {
+            color: var(--secondary-accent);
+        }
+
+        .footer-description {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .footer-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            padding: 4px 0;
+            display: inline-block;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-accent);
+            text-decoration: none;
+            padding-left: 8px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(79, 195, 247, 0.1);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-accent);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .social-link:hover {
+            background: rgba(79, 195, 247, 0.2);
+            border-color: rgba(79, 195, 247, 0.4);
+            color: var(--text-main);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(79, 195, 247, 0.1);
+            padding-top: 30px;
+            margin-top: 40px;
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-tagline {
+            color: var(--primary-accent);
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Responsive Footer */
+        @media (max-width: 768px) {
+            .site-footer {
+                padding: 40px 0 20px;
+            }
+
+            .footer-content {
+                margin-bottom: 30px;
+            }
+
+            .footer-section {
+                margin-bottom: 2rem;
+            }
+
+            .footer-bottom {
+                text-align: center;
+            }
+
+            .footer-bottom .col-md-6:last-child {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Right Auth Buttons -->
+    <div class="auth-buttons">
+        <a href="{{ url_for('auth.login') }}" class="auth-btn">Login</a>
+        <a href="{{ url_for('auth.signup') }}" class="auth-btn signup">Sign Up</a>
+    </div>
+
+    <!-- Hero Section - Most Important Info -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h1 class="game-title animate-fadeInUp">Python Learning Adventure</h1>
+                <p class="tagline animate-fadeInUp">Navigate the loops, master the logic, conquer the code!</p>
+                <p class="hero-description animate-fadeInUp">
+                    Master Python programming through gamified learning that makes coding fun and engaging.
+                    Start your coding journey today!
+                </p>
+                <div class="hero-cta animate-fadeInUp">
+                    <a href="{{ url_for('auth.signup') }}" class="play-now-btn primary-cta">
+                        <i class="fas fa-rocket me-2"></i>Start Learning Free
+                    </a>
+                    <div class="cta-subtitle">
+                        <span class="cta-features">✓ 100+ Interactive Levels ✓ Real Python Code ✓ Instant
+                            Feedback</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Preview Section -->
+    <section class="preview-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="preview-content">
+                        <h2 class="section-title">See Python Learning in Action</h2>
+                        <p class="section-description">
+                            Experience interactive challenges, real-time code execution, and progressive skill building
+                            through our gamified learning platform.
+                        </p>
+                        <ul class="preview-features">
+                            <li><i class="fas fa-check-circle me-2"></i>Interactive code challenges</li>
+                            <li><i class="fas fa-check-circle me-2"></i>Real-time feedback and hints</li>
+                            <li><i class="fas fa-check-circle me-2"></i>Progress tracking and achievements</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="game-preview">
+                        <div class="level-grid" id="levelGrid">
+                            <!-- Levels will be generated by JavaScript -->
+                        </div>
+                        <div class="code-animation mt-4">
+                            <div id="typing-code">
+                                # Your Python journey begins...<br>
+                                for level in adventure:<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;learn(concepts)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;solve(challenges)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;earn(achievements)<span class="typing-cursor">|</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Benefits Section -->
+    <section class="benefits-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2 class="section-title">Why Choose Python Learning Adventure?</h2>
+                <p class="section-subtitle">Join thousands of learners mastering Python through interactive gameplay</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-4 mb-4">
+                    <div class="benefit-card primary">
+                        <div class="benefit-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3 class="benefit-title">Gamified Learning</h3>
+                        <p class="benefit-text">
+                            Turn coding into an adventure with levels, achievements, and rewards that keep you engaged.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="benefit-card secondary">
+                        <div class="benefit-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="benefit-title">Progressive Learning</h3>
+                        <p class="benefit-text">
+                            Master concepts step-by-step with carefully designed difficulty progression.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="benefit-card accent">
+                        <div class="benefit-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 class="benefit-title">Real Python</h3>
+                        <p class="benefit-text">
+                            Practice actual Python syntax used in professional software development.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title text-center mb-5">Complete Learning Experience</h2>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h4 class="feature-title">Achievements & Rewards</h4>
+                        <p class="feature-text">
+                            Earn badges, unlock levels, and track your progress as you advance through Python concepts.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="feature-title">Community Learning</h4>
+                        <p class="feature-text">
+                            Join a supportive community of learners and get help when you need it.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="feature-title">Learn Anywhere</h4>
+                        <p class="feature-text">
+                            Responsive design lets you continue learning on any device, anywhere.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta-section">
+        <div class="container">
+            <div class="cta-content text-center">
+                <h2 class="cta-title">Ready to Start Your Python Journey?</h2>
+                <p class="cta-description">
+                    Join thousands of learners who have mastered Python through our interactive platform.
+                    Start your adventure today - it's completely free!
+                </p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('auth.signup') }}" class="play-now-btn">
+                        <i class="fas fa-rocket me-2"></i>Get Started Free
+                    </a>
+                    <div class="auth-link-wrapper">
+                        <span class="auth-text">Already have an account?</span>
+                        <a href="{{ url_for('auth.login') }}" class="auth-link">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="footer-section">
+                            <h3 class="footer-logo">
+                                <i class="fas fa-code me-2"></i>Python Learning Adventure
+                            </h3>
+                            <p class="footer-description">
+                                Master Python programming through interactive, gamified learning experiences.
+                                Join our community and start your coding journey today.
+                            </p>
+                            <div class="social-links">
+                                <a href="https://github.com/python-learning-adventure" class="social-link"
+                                    target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
+                                <a href="https://twitter.com/pythonlearnadv" class="social-link" target="_blank"
+                                    rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
+                                <a href="https://discord.gg/python-learning" class="social-link" target="_blank"
+                                    rel="noopener noreferrer"><i class="fab fa-discord"></i></a>
+                                <a href="https://linkedin.com/company/python-learning-adventure" class="social-link"
+                                    target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4">
+                        <div class="footer-section">
+                            <h4 class="footer-title">Learning</h4>
+                            <ul class="footer-links">
+                                <li><a href="{{ url_for('auth.signup') }}">Start Learning</a></li>
+                                <li><a href="/courses">Course Catalog</a></li>
+                                <li><a href="/practice">Practice Problems</a></li>
+                                <li><a href="/challenges">Coding Challenges</a></li>
+                                <li><a href="/certificates">Certificates</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4">
+                        <div class="footer-section">
+                            <h4 class="footer-title">Community</h4>
+                            <ul class="footer-links">
+                                <li><a href="/forum">Discussion Forum</a></li>
+                                <li><a href="https://discord.gg/python-learning" target="_blank"
+                                        rel="noopener noreferrer">Discord Server</a></li>
+                                <li><a href="/study-groups">Study Groups</a></li>
+                                <li><a href="/leaderboard">Leaderboard</a></li>
+                                <li><a href="/success-stories">Success Stories</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4">
+                        <div class="footer-section">
+                            <h4 class="footer-title">Support</h4>
+                            <ul class="footer-links">
+                                <li><a href="/help">Help Center</a></li>
+                                <li><a href="/contact">Contact Us</a></li>
+                                <li><a href="/bug-reports">Bug Reports</a></li>
+                                <li><a href="/feature-requests">Feature Requests</a></li>
+                                <li><a href="/docs">Documentation</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4">
+                        <div class="footer-section">
+                            <h4 class="footer-title">Legal</h4>
+                            <ul class="footer-links">
+                                <li><a href="/privacy">Privacy Policy</a></li>
+                                <li><a href="/terms">Terms of Service</a></li>
+                                <li><a href="/cookies">Cookie Policy</a></li>
+                                <li><a href="/code-of-conduct">Code of Conduct</a></li>
+                                <li><a href="/accessibility">Accessibility</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="copyright">
+                            &copy; 2025 Python Learning Adventure. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="footer-tagline">
+                            Learn. Code. Master. Repeat.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Optimized JavaScript with reduced complexity
+        document.addEventListener('DOMContentLoaded', function () {
+            // Generate level grid efficiently
+            const levelGrid = document.getElementById('levelGrid');
+            if (levelGrid) {
+                const fragment = document.createDocumentFragment();
+
+                for (let i = 1; i <= 20; i++) {
+                    const levelNode = document.createElement('div');
+                    levelNode.className = 'level-node';
+                    levelNode.textContent = i;
+
+                    if (i <= 5) {
+                        levelNode.classList.add('level-completed');
+                    } else if (i === 6) {
+                        levelNode.classList.add('level-current');
+                    } else {
+                        levelNode.classList.add('level-locked');
+                    }
+
+                    fragment.appendChild(levelNode);
+                }
+
+                levelGrid.appendChild(fragment);
+            }
+
+            // Simplified typing animation
+            const codeTexts = [
+                "# Your Python journey begins...<br>for level in adventure:<br>&nbsp;&nbsp;&nbsp;&nbsp;learn(concepts)<br>&nbsp;&nbsp;&nbsp;&nbsp;solve(challenges)",
+                "# Master Python fundamentals<br>def calculate_score(attempts):<br>&nbsp;&nbsp;&nbsp;&nbsp;if attempts == 1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 100",
+                "# Level up your skills<br>class PythonMaster:<br>&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.level = 1"
+            ];
+
+            let currentTextIndex = 0;
+            const typingElement = document.getElementById('typing-code');
+
+            function changeCode() {
+                if (typingElement) {
+                    typingElement.innerHTML = codeTexts[currentTextIndex] + '<span class="typing-cursor">|</span>';
+                    currentTextIndex = (currentTextIndex + 1) % codeTexts.length;
+                }
+            }
+
+            // Change code every 4 seconds (reduced from 6)
+            setInterval(changeCode, 4000);
+
+            // Add fade-in animation on scroll (throttled)
+            let ticking = false;
+
+            function updateAnimations() {
+                const elements = document.querySelectorAll('.animate-fadeInUp');
+                const windowHeight = window.innerHeight;
+
+                elements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - 100) {
+                        element.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                    }
+                });
+
+                ticking = false;
+            }
+
+            function requestAnimationUpdate() {
+                if (!ticking) {
+                    requestAnimationFrame(updateAnimations);
+                    ticking = true;
+                }
+            }
+
+            // Throttled scroll event
+            window.addEventListener('scroll', requestAnimationUpdate, { passive: true });
+
+            // Initial animation trigger
+            updateAnimations();
+        });
+
+        // Preload critical resources
+        const preloadLink = document.createElement('link');
+        preloadLink.rel = 'preload';
+        preloadLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
+        preloadLink.as = 'style';
+        document.head.appendChild(preloadLink);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,176 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit User: {{ user.username }}{% endblock %}
+{% block page_title %}Edit User: {{ user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5 class="mb-0">Edit User Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                value="{{ user.username }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="full_name" name="full_name"
+                            value="{{ user.full_name }}" required>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="current_level" class="form-label">Current Level</label>
+                            <input type="number" class="form-control" id="current_level" name="current_level"
+                                value="{{ user.current_level }}" min="1" max="100">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="total_score" class="form-label">Total Score</label>
+                            <input type="number" class="form-control" id="total_score" name="total_score"
+                                value="{{ user.total_score }}" min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="streak_count" class="form-label">Streak Count</label>
+                            <input type="number" class="form-control" id="streak_count" name="streak_count"
+                                value="{{ user.streak_count }}" min="0">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">User Status</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_active_user"
+                                    name="is_active_user" {{ 'checked' if user.is_active_user }}>
+                                <label class="form-check-label" for="is_active_user">
+                                    Active User
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="email_verified"
+                                    name="email_verified" {{ 'checked' if user.email_verified }}>
+                                <label class="form-check-label" for="email_verified">
+                                    Email Verified
+                                </label>
+                            </div>
+                            {% if user.id != current_user.id %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin"
+                                    {{ 'checked' if user.is_admin }}>
+                                <label class="form-check-label" for="is_admin">
+                                    Administrator
+                                </label>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password (leave blank to keep current)</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                        <div class="form-text">Only enter a password if you want to change it.</div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-admin-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a href="{{ url_for('admin.view_user', user_id=user.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline-info">
+                            <i class="fas fa-list"></i> Back to Users
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Information Card -->
+<div class="row mt-4">
+    <div class="col-md-8 mx-auto">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5 class="mb-0">Account Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">User ID:</th>
+                                <td>{{ user.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Created:</th>
+                                <td>{{ user.created_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Last Login:</th>
+                                <td>
+                                    {% if user.last_login %}
+                                    {{ user.last_login.strftime('%B %d, %Y at %I:%M %p') }}
+                                    {% else %}
+                                    Never
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Last Activity:</th>
+                                <td>
+                                    {% if user.last_activity %}
+                                    {{ user.last_activity.strftime('%B %d, %Y at %I:%M %p') }}
+                                    {% else %}
+                                    Never
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Account Status:</th>
+                                <td>
+                                    {% if user.is_active_user %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Role:</th>
+                                <td>
+                                    {% if user.is_admin %}
+                                    <span class="badge bg-warning">Administrator</span>
+                                    {% else %}
+                                    <span class="badge bg-primary">User</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

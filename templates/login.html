@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Python Learning Adventure{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h1 class="display-4">🐍</h1>
+                    <h2 class="card-title">Welcome to Python Learning Adventure!</h2>
+                    <p class="text-muted">Learn Python through gamified levels and challenges</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="playerName" class="form-label">Enter your name to start or continue:</label>
+                        <input type="text" class="form-control form-control-lg" id="playerName" placeholder="Your name"
+                            required maxlength="50">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play"></i> Start Learning
+                        </button>
+                    </div>
+                </form>
+
+                <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <h3>🎮 Game Features</h3>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5><i class="fas fa-layer-group text-primary"></i> 100 Levels</h5>
+                            <p class="text-muted">Progress through 100 carefully crafted levels</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5><i class="fas fa-clipboard-check text-success"></i> Tests Every 10 Levels</h5>
+                            <p class="text-muted">Challenge yourself with comprehensive tests</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5><i class="fas fa-trophy text-warning"></i> Achievements</h5>
+                            <p class="text-muted">Unlock achievements and earn rewards</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5><i class="fas fa-fire text-danger"></i> Daily Streaks</h5>
+                            <p class="text-muted">Maintain daily learning streaks</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const playerName = document.getElementById('playerName').value.trim();
+        const errorDiv = document.getElementById('errorMessage');
+
+        if (!playerName) {
+            errorDiv.textContent = 'Please enter your name';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // Hide error message
+        errorDiv.style.display = 'none';
+
+        // Show loading state
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+        submitBtn.disabled = true;
+
+        // Send login request
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: playerName
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    errorDiv.textContent = data.error || 'Login failed';
+                    errorDiv.style.display = 'block';
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+    });
+</script>
+{% endblock %}

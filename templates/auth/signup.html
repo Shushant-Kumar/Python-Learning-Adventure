@@ -1,0 +1,625 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Python Learning Adventure{% endblock %}
+
+{% block content %}
+<div class="container-fluid auth-container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card auth-card shadow-lg">
+                <div class="card-body p-4 p-md-5">
+                    <!-- Logo and Title -->
+                    <div class="text-center mb-4">
+                        <div class="auth-logo mb-3">
+                            <i class="fas fa-rocket fa-3x text-primary"></i>
+                        </div>
+                        <h2 class="auth-title mb-2">Join the Adventure!</h2>
+                        <p class="auth-subtitle text-muted">Start your Python learning journey today</p>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+                        role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <!-- Signup Form -->
+                    <form method="POST" id="signupForm" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <!-- Full Name Field -->
+                        <div class="mb-3">
+                            {{ form.full_name.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                {{ form.full_name(class="form-control") }}
+                            </div>
+                            {% if form.full_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.full_name.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Username Field -->
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-at"></i>
+                                </span>
+                                {{ form.username(class="form-control") }}
+                                <div class="input-group-text" id="usernameCheck" style="display: none;">
+                                    <i class="fas fa-check text-success" id="usernameValid" style="display: none;"></i>
+                                    <i class="fas fa-times text-danger" id="usernameInvalid" style="display: none;"></i>
+                                    <div class="spinner-border spinner-border-sm" id="usernameLoading"
+                                        style="display: none;"></div>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted" id="usernameHelp">Choose a unique username (3+
+                                characters)</small>
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                {{ form.email(class="form-control") }}
+                                <div class="input-group-text" id="emailCheck" style="display: none;">
+                                    <i class="fas fa-check text-success" id="emailValid" style="display: none;"></i>
+                                    <i class="fas fa-times text-danger" id="emailInvalid" style="display: none;"></i>
+                                    <div class="spinner-border spinner-border-sm" id="emailLoading"
+                                        style="display: none;"></div>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted" id="emailHelp">We'll never share your email with
+                                anyone</small>
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                {{ form.password(class="form-control") }}
+                                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                    <i class="fas fa-eye" id="passwordIcon"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength mt-2">
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar" id="passwordStrength" style="width: 0%"></div>
+                                </div>
+                                <small class="form-text" id="passwordHelp">Password strength: <span
+                                        id="strengthText">Too weak</span></small>
+                            </div>
+                            {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="mb-3">
+                            {{ form.confirm_password.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                {{ form.confirm_password(class="form-control") }}
+                                <div class="input-group-text" id="confirmCheck" style="display: none;">
+                                    <i class="fas fa-check text-success" id="confirmValid" style="display: none;"></i>
+                                    <i class="fas fa-times text-danger" id="confirmInvalid" style="display: none;"></i>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted" id="confirmHelp">Re-enter your password to
+                                confirm</small>
+                            {% if form.confirm_password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.confirm_password.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label terms-label" for="agreeTerms">
+                                    I agree to the <a href="#" class="terms-link">Terms of Service</a>
+                                    and <a href="#" class="terms-link">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mb-3">
+                            {{ form.submit(class="btn btn-primary btn-lg", id="submitBtn", disabled=true) }}
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="text-center mb-3">
+                            <div class="divider">
+                                <span class="divider-text">or</span>
+                            </div>
+                        </div>
+
+                        <!-- Login Link -->
+                        <div class="text-center">
+                            <p class="mb-0 auth-switch-text">
+                                Already have an account?
+                                <a href="{{ url_for('auth.login') }}" class="auth-switch-link">
+                                    Login
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .auth-card {
+        border-radius: 20px;
+        border: none;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .auth-logo {
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: inline-block;
+        color: white;
+    }
+
+    .auth-title {
+        font-weight: 700;
+        color: #333;
+    }
+
+    .auth-subtitle {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+
+    .auth-switch-text {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    .auth-switch-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
+
+    .auth-switch-link:hover {
+        color: #5a67d8;
+        text-decoration: underline;
+    }
+
+    .form-control {
+        padding: 12px 16px;
+        font-size: 1rem;
+    }
+
+    .input-group-text {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary:disabled {
+        background: #6c757d;
+        opacity: 0.6;
+    }
+
+    .divider {
+        position: relative;
+        margin: 20px 0;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #dee2e6;
+    }
+
+    .divider-text {
+        background: white;
+        padding: 0 15px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .form-check-label {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    .terms-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .terms-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .terms-link:hover {
+        color: #5a67d8;
+        text-decoration: underline;
+    }
+
+    .alert {
+        border-radius: 10px;
+        border: none;
+    }
+
+    .progress-bar {
+        transition: all 0.3s ease;
+    }
+
+    .password-strength .progress {
+        border-radius: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .auth-card {
+            margin: 20px;
+        }
+
+        .card-body {
+            padding: 2rem 1.5rem !important;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('signupForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const agreeTerms = document.getElementById('agreeTerms');
+
+        // Form fields
+        const usernameField = document.getElementById('username');
+        const emailField = document.getElementById('email');
+        const passwordField = document.getElementById('password');
+        const confirmField = document.getElementById('confirm_password');
+
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordIcon = document.getElementById('passwordIcon');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            confirmField.setAttribute('type', type);
+
+            if (type === 'password') {
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            } else {
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            }
+        });
+
+        // Password strength checker
+        passwordField.addEventListener('input', function () {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            updatePasswordStrength(strength);
+        });
+
+        // Confirm password checker
+        confirmField.addEventListener('input', function () {
+            checkPasswordMatch();
+        });
+
+        // Username availability checker
+        let usernameTimeout;
+        usernameField.addEventListener('input', function () {
+            clearTimeout(usernameTimeout);
+            const username = this.value;
+
+            if (username.length >= 3) {
+                usernameTimeout = setTimeout(() => checkUsernameAvailability(username), 500);
+            } else {
+                hideUsernameCheck();
+            }
+        });
+
+        // Email availability checker
+        let emailTimeout;
+        emailField.addEventListener('input', function () {
+            clearTimeout(emailTimeout);
+            const email = this.value;
+
+            if (isValidEmail(email)) {
+                emailTimeout = setTimeout(() => checkEmailAvailability(email), 500);
+            } else {
+                hideEmailCheck();
+            }
+        });
+
+        // Terms checkbox
+        agreeTerms.addEventListener('change', function () {
+            checkFormValidity();
+        });
+
+        // Check form validity
+        function checkFormValidity() {
+            const isValid = form.checkValidity() && agreeTerms.checked;
+            submitBtn.disabled = !isValid;
+        }
+
+        // Password strength calculation
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+
+            if (password.length >= 6) strength += 20;
+            if (password.length >= 8) strength += 10;
+            if (/[a-z]/.test(password)) strength += 20;
+            if (/[A-Z]/.test(password)) strength += 20;
+            if (/[0-9]/.test(password)) strength += 15;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 15;
+
+            return Math.min(100, strength);
+        }
+
+        // Update password strength UI
+        function updatePasswordStrength(strength) {
+            const progressBar = document.getElementById('passwordStrength');
+            const strengthText = document.getElementById('strengthText');
+
+            progressBar.style.width = strength + '%';
+
+            if (strength < 30) {
+                progressBar.className = 'progress-bar bg-danger';
+                strengthText.textContent = 'Too weak';
+                strengthText.className = 'text-danger';
+            } else if (strength < 60) {
+                progressBar.className = 'progress-bar bg-warning';
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'text-warning';
+            } else if (strength < 80) {
+                progressBar.className = 'progress-bar bg-info';
+                strengthText.textContent = 'Good';
+                strengthText.className = 'text-info';
+            } else {
+                progressBar.className = 'progress-bar bg-success';
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'text-success';
+            }
+        }
+
+        // Check password match
+        function checkPasswordMatch() {
+            const password = passwordField.value;
+            const confirm = confirmField.value;
+            const checkDiv = document.getElementById('confirmCheck');
+            const validIcon = document.getElementById('confirmValid');
+            const invalidIcon = document.getElementById('confirmInvalid');
+
+            if (confirm.length > 0) {
+                checkDiv.style.display = 'block';
+
+                if (password === confirm) {
+                    validIcon.style.display = 'block';
+                    invalidIcon.style.display = 'none';
+                    confirmField.classList.remove('is-invalid');
+                    confirmField.classList.add('is-valid');
+                } else {
+                    validIcon.style.display = 'none';
+                    invalidIcon.style.display = 'block';
+                    confirmField.classList.remove('is-valid');
+                    confirmField.classList.add('is-invalid');
+                }
+            } else {
+                checkDiv.style.display = 'none';
+                confirmField.classList.remove('is-valid', 'is-invalid');
+            }
+
+            checkFormValidity();
+        }
+
+        // Check username availability
+        async function checkUsernameAvailability(username) {
+            const checkDiv = document.getElementById('usernameCheck');
+            const validIcon = document.getElementById('usernameValid');
+            const invalidIcon = document.getElementById('usernameInvalid');
+            const loadingIcon = document.getElementById('usernameLoading');
+
+            checkDiv.style.display = 'block';
+            loadingIcon.style.display = 'block';
+            validIcon.style.display = 'none';
+            invalidIcon.style.display = 'none';
+
+            try {
+                const response = await fetch(`/auth/api/check-username?username=${encodeURIComponent(username)}`);
+                const data = await response.json();
+
+                loadingIcon.style.display = 'none';
+
+                if (data.available) {
+                    validIcon.style.display = 'block';
+                    invalidIcon.style.display = 'none';
+                    usernameField.classList.remove('is-invalid');
+                    usernameField.classList.add('is-valid');
+                    document.getElementById('usernameHelp').textContent = 'Username is available';
+                    document.getElementById('usernameHelp').className = 'form-text text-success';
+                } else {
+                    validIcon.style.display = 'none';
+                    invalidIcon.style.display = 'block';
+                    usernameField.classList.remove('is-valid');
+                    usernameField.classList.add('is-invalid');
+                    document.getElementById('usernameHelp').textContent = data.message;
+                    document.getElementById('usernameHelp').className = 'form-text text-danger';
+                }
+            } catch (error) {
+                loadingIcon.style.display = 'none';
+                hideUsernameCheck();
+            }
+
+            checkFormValidity();
+        }
+
+        // Check email availability
+        async function checkEmailAvailability(email) {
+            const checkDiv = document.getElementById('emailCheck');
+            const validIcon = document.getElementById('emailValid');
+            const invalidIcon = document.getElementById('emailInvalid');
+            const loadingIcon = document.getElementById('emailLoading');
+
+            checkDiv.style.display = 'block';
+            loadingIcon.style.display = 'block';
+            validIcon.style.display = 'none';
+            invalidIcon.style.display = 'none';
+
+            try {
+                const response = await fetch(`/auth/api/check-email?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+
+                loadingIcon.style.display = 'none';
+
+                if (data.available) {
+                    validIcon.style.display = 'block';
+                    invalidIcon.style.display = 'none';
+                    emailField.classList.remove('is-invalid');
+                    emailField.classList.add('is-valid');
+                    document.getElementById('emailHelp').textContent = "We'll never share your email with anyone";
+                    document.getElementById('emailHelp').className = 'form-text text-muted';
+                } else {
+                    validIcon.style.display = 'none';
+                    invalidIcon.style.display = 'block';
+                    emailField.classList.remove('is-valid');
+                    emailField.classList.add('is-invalid');
+                    document.getElementById('emailHelp').textContent = data.message;
+                    document.getElementById('emailHelp').className = 'form-text text-danger';
+                }
+            } catch (error) {
+                loadingIcon.style.display = 'none';
+                hideEmailCheck();
+            }
+
+            checkFormValidity();
+        }
+
+        // Hide username check
+        function hideUsernameCheck() {
+            document.getElementById('usernameCheck').style.display = 'none';
+            usernameField.classList.remove('is-valid', 'is-invalid');
+            document.getElementById('usernameHelp').textContent = 'Choose a unique username (3+ characters)';
+            document.getElementById('usernameHelp').className = 'form-text text-muted';
+        }
+
+        // Hide email check
+        function hideEmailCheck() {
+            document.getElementById('emailCheck').style.display = 'none';
+            emailField.classList.remove('is-valid', 'is-invalid');
+            document.getElementById('emailHelp').textContent = "We'll never share your email with anyone";
+            document.getElementById('emailHelp').className = 'form-text text-muted';
+        }
+
+        // Email validation
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Form submission
+        form.addEventListener('submit', function (e) {
+            if (!agreeTerms.checked) {
+                e.preventDefault();
+                alert('Please agree to the Terms of Service and Privacy Policy');
+            }
+        });
+
+        // Initial form validation check
+        form.addEventListener('input', checkFormValidity);
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}
