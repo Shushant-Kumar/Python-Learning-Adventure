@@ -5,7 +5,7 @@ Handles main game functionality routes
 
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_required, current_user
-from game_logic import GameLogic
+from game_logic.coordinator import GameLogicCoordinator as AdvancedGameLogic
 from player_manager import PlayerManager
 from auth import db, User
 from sqlalchemy import desc
@@ -14,7 +14,7 @@ import json
 main_bp = Blueprint('main', __name__)
 
 # Initialize game components
-game_logic = GameLogic()
+game_logic = AdvancedGameLogic()
 player_manager = PlayerManager()
 
 @main_bp.route('/dashboard')
@@ -49,13 +49,21 @@ def test(level_id):
     """Take a test (every 10th level)."""
     player_data = current_user.get_game_progress()
     player_obj = current_user.get_player_object()
-    test_data = game_logic.get_test_data(level_id, player_obj)
     
-    if not test_data:
+    # Tests are just special levels (every 10th level)
+    if level_id % 10 != 0:
+        flash('This is not a test level!', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    level_data = game_logic.get_level_data(level_id, player_obj)
+    
+    if not level_data:
         flash('Test not found or not yet unlocked!', 'error')
         return redirect(url_for('main.dashboard'))
     
-    return render_template('test.html', test=test_data, player=player_data)
+    # Mark this as a test level for the template
+    level_data['is_test'] = True
+    return render_template('test.html', test=level_data, player=player_data)
 
 @main_bp.route('/api/complete_level', methods=['POST'])
 @login_required
@@ -73,18 +81,28 @@ def complete_level():
     
     if result['success']:
         # Update user progress in database
-        current_user.current_level = result['new_level']
-        current_user.total_score = result['total_score']
+        current_user.current_level = result.get('new_level', current_user.current_level)
+        current_user.total_score = result.get('total_score', current_user.total_score)
         
-        # Update completed levels
-        completed_levels = json.loads(current_user.completed_levels)
+        # Update completed levels safely
+        completed_levels_str = current_user.completed_levels or '[]'
+        try:
+            completed_levels = json.loads(completed_levels_str)
+        except (json.JSONDecodeError, TypeError):
+            completed_levels = []
+        
         if level_id not in completed_levels:
             completed_levels.append(level_id)
             current_user.completed_levels = json.dumps(completed_levels)
         
         # Update achievements
         if result.get('achievements'):
-            user_achievements = json.loads(current_user.achievements)
+            achievements_str = current_user.achievements or '[]'
+            try:
+                user_achievements = json.loads(achievements_str)
+            except (json.JSONDecodeError, TypeError):
+                user_achievements = []
+            
             for achievement in result['achievements']:
                 if achievement not in user_achievements:
                     user_achievements.append(achievement)
@@ -110,17 +128,33 @@ def complete_test():
     # Convert User to Player-like object for compatibility
     player_obj = current_user.get_player_object()
     
-    # Complete test using game logic
-    result = game_logic.complete_test(player_obj, test_id, answers)
+    # Tests use the same completion system as regular levels
+    result = game_logic.complete_level(player_obj, test_id, answers)
     
     if result['success']:
         # Update user progress in database
-        current_user.current_level = result['new_level']
-        current_user.total_score = result['total_score']
+        current_user.current_level = result.get('new_level', current_user.current_level)
+        current_user.total_score = result.get('total_score', current_user.total_score)
         
-        # Update achievements
+        # Update completed levels safely (for tests too)
+        completed_levels_str = current_user.completed_levels or '[]'
+        try:
+            completed_levels = json.loads(completed_levels_str)
+        except (json.JSONDecodeError, TypeError):
+            completed_levels = []
+        
+        if test_id not in completed_levels:
+            completed_levels.append(test_id)
+            current_user.completed_levels = json.dumps(completed_levels)
+        
+        # Update achievements safely
         if result.get('achievements'):
-            user_achievements = json.loads(current_user.achievements)
+            achievements_str = current_user.achievements or '[]'
+            try:
+                user_achievements = json.loads(achievements_str)
+            except (json.JSONDecodeError, TypeError):
+                user_achievements = []
+            
             for achievement in result['achievements']:
                 if achievement not in user_achievements:
                     user_achievements.append(achievement)
@@ -145,7 +179,7 @@ def get_hint():
     # Convert User to Player-like object for compatibility
     player_obj = current_user.get_player_object()
     
-    hint = game_logic.get_hint(level_id, player_obj)
+    hint = game_logic.get_hint(player_obj, level_id)
     return jsonify({'hint': hint})
 
 @main_bp.route('/profile')

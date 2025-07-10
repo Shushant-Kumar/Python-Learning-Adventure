@@ -7,17 +7,27 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from functools import wraps
 from auth import db, User
-from game_logic import GameLogic
+from game_logic.coordinator import GameLogicCoordinator as AdvancedGameLogic
+from game_logic.player_state import PlayerState
 import json
 from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 # Initialize game logic
-game_logic = GameLogic()
+game_logic = AdvancedGameLogic()
 
-# Initialize game logic instance
-game_logic = GameLogic()
+def create_dummy_player(level: int = 1) -> PlayerState:
+    """Create a dummy player for admin operations."""
+    dummy_player = PlayerState(
+        id="admin-dummy",
+        username="admin-dummy",
+        created_at=datetime.now().isoformat(),
+        last_login=datetime.now().isoformat()
+    )
+    dummy_player.current_level = level
+    dummy_player.completed_levels = list(range(1, level))
+    return dummy_player
 
 def admin_required(f):
     """Decorator to require admin privileges."""
@@ -273,7 +283,7 @@ def manage_content():
     # For now, we'll use placeholder data
     for level in range(1, 21):
         # Create a dummy player object to get level data
-        dummy_player = type('DummyPlayer', (), {'current_level': level, 'completed_levels': []})()
+        dummy_player = create_dummy_player(level)
         level_data = game_logic.get_level_data(level, dummy_player)
         if level_data:
             level_questions[level] = len(level_data.get('questions', []))
@@ -286,7 +296,7 @@ def manage_content():
 def manage_level_content(level):
     """Manage content for a specific level."""
     # Create a dummy player object to get level data
-    dummy_player = type('DummyPlayer', (), {'current_level': level, 'completed_levels': []})()
+    dummy_player = create_dummy_player(level)
     level_data = game_logic.get_level_data(level, dummy_player)
     questions = level_data.get('questions', []) if level_data else []
     

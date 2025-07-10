@@ -21,11 +21,11 @@ def init_database():
         # Create default admin user if needed
         if not User.query.first():
             admin = User(
-                username='admin',
+                username='Shushant',
                 email='admin@pythonlearning.com',
                 full_name='Administrator'
             )
-            admin.set_password('admin123')
+            admin.set_password('Shushant551#')
             admin.email_verified = True
             admin.is_active_user = True
             admin.is_admin = True  # Set admin flag

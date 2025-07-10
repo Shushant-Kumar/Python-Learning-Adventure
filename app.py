@@ -8,7 +8,7 @@ from flask_login import login_required, current_user
 import json
 import os
 from datetime import datetime, timedelta
-from game_logic import GameLogic
+from game_logic.coordinator import GameLogicCoordinator as AdvancedGameLogic
 from player_manager import PlayerManager
 from auth import db, bcrypt, login_manager, create_database_tables, User
 from auth_routes import auth_bp
@@ -40,7 +40,7 @@ def welcome():
     return render_template('welcome.html')
 
 # Initialize game components
-game_logic = GameLogic()
+game_logic = AdvancedGameLogic()
 player_manager = PlayerManager()
 
 # Create database tables
@@ -76,7 +76,7 @@ def level(level_id):
     
     if not level_data:
         flash('Level not found or not yet unlocked!', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.dashboard'))
     
     return render_template('level.html', level=level_data, player=player_data)
 
@@ -86,13 +86,21 @@ def test(level_id):
     """Take a test (every 10th level)."""
     player_data = current_user.get_game_progress()
     player_obj = current_user.get_player_object()
-    test_data = game_logic.get_test_data(level_id, player_obj)
     
-    if not test_data:
+    # Tests are just special levels (every 10th level)
+    if level_id % 10 != 0:
+        flash('This is not a test level!', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    level_data = game_logic.get_level_data(level_id, player_obj)
+    
+    if not level_data:
         flash('Test not found or not yet unlocked!', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.dashboard'))
     
-    return render_template('test.html', test=test_data, player=player_data)
+    # Mark this as a test level for the template
+    level_data['is_test'] = True
+    return render_template('test.html', test=level_data, player=player_data)
 
 @app.route('/api/complete_level', methods=['POST'])
 @login_required
@@ -125,9 +133,10 @@ def complete_test():
     level_id = data.get('level_id')
     test_answers = data.get('test_answers', [])
     
+    # Tests use the same completion system as regular levels
     player_data = current_user.get_game_progress()
     player_obj = current_user.get_player_object()
-    result = game_logic.complete_test(player_obj, level_id, test_answers)
+    result = game_logic.complete_level(player_obj, level_id, test_answers)
     
     # Update user's game progress
     if result.get('success'):
@@ -204,7 +213,7 @@ def achievements():
     """Achievements page."""
     player_data = current_user.get_game_progress()
     player_obj = current_user.get_player_object()
-    achievements = game_logic.get_achievements(player_obj)
+    achievements = game_logic.get_player_achievements(player_obj)
     
     return render_template('achievements.html', player=player_data, achievements=achievements)
 

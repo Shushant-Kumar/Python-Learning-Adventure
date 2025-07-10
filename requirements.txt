@@ -1,16 +1,49 @@
-# Python Learning Game Requirements
-Flask==2.3.3
-Werkzeug==2.3.7
-Flask-SQLAlchemy==3.0.5
-Flask-Bcrypt==1.0.1
-Flask-Login==0.6.3
-Flask-WTF==1.1.1
-WTForms==3.0.1
-email-validator==2.0.0
-SQLAlchemy==2.0.21
+# Python Learning Adventure - Web Platform Requirements
 
-# Optional for future enhancements:
-# colorama>=0.4.4  # For better cross-platform colored output
-# rich>=13.0.0     # For beautiful terminal formatting
-# pytest>=7.0.0    # For unit testing
-# black>=22.0.0    # For code formatting
+# Core Flask Web Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Database & ORM
+Flask-SQLAlchemy==3.1.1
+SQLAlchemy==2.0.23
+alembic==1.13.1  # Database migrations
+
+# Authentication & Security
+Flask-Login==0.6.3
+Flask-Bcrypt==1.0.1
+Flask-WTF==1.2.1
+WTForms==3.1.1
+email-validator==2.1.0
+
+# Environment & Configuration
+python-dotenv==1.0.0  # Environment variable management
+
+# Production Server (optional)
+gunicorn==21.2.0  # WSGI HTTP Server for production
+
+# Development & Testing
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0  # Test coverage
+
+# Code Quality & Formatting
+black==23.12.0  # Code formatter
+flake8==6.1.0   # Linting
+isort==5.13.2   # Import sorting
+
+# Additional Utilities
+click==8.1.7     # CLI utilities
+Jinja2==3.1.2    # Template engine (Flask dependency)
+MarkupSafe==2.1.3  # Safe string handling
+
+# Database Drivers (optional, uncomment as needed)
+# psycopg2-binary==2.9.9  # PostgreSQL driver
+# PyMySQL==1.1.0          # MySQL driver
+
+# Enhanced Features (optional)
+# Flask-Mail==0.9.1       # Email sending capabilities
+# Flask-Migrate==4.0.5    # Database migration management
+# Flask-Admin==1.6.1      # Enhanced admin interface
+# redis==5.0.1            # Session storage and caching
+# celery==5.3.4           # Background task processing

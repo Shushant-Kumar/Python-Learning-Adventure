@@ -25,11 +25,13 @@ def login():
         password = form.password.data
         remember = form.remember_me.data
         
-        # Check if input is email or username
-        if '@' in username_or_email:
+        # Check if input is email or username (with null and empty check)
+        if username_or_email and '@' in username_or_email:
             user = User.query.filter_by(email=username_or_email).first()
-        else:
+        elif username_or_email:
             user = User.query.filter_by(username=username_or_email).first()
+        else:
+            user = None
         
         if user and user.check_password(password):
             if not user.is_active_user:

@@ -561,7 +561,7 @@
             },
             body: JSON.stringify({
                 level_id: {{ level.id }},
-                quiz_answers: answers
+            quiz_answers: answers
             })
         })
         .then(response => response.json())
@@ -649,7 +649,7 @@
     `;
 
         // Set up next level button
-        const currentLevel = { level.id }
+        const currentLevel = {{ level.id }}
     };
     const nextLevel = currentLevel + 1;
 
